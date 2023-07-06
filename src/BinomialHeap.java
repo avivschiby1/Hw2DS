@@ -1,5 +1,9 @@
-import java.util.HashSet;
-import java.util.Set;
+//username1 - avivschiby
+//id1      - 206655540
+//name1    - Aviv Schiby
+//username2 - mayaschiby
+//id2      - 213104177
+//name2    - Maya Schiby
 
 /**
  * BinomialHeap
@@ -30,7 +34,7 @@ public class BinomialHeap{
      * Insert (key,info) into the heap and return the newly generated HeapItem.
      */
 
-    public HeapItem insert(int key, String info) {
+    public HeapItem insert(int key, String info) { // O(log(n))
         numOfTrees += 1;
         HeapNode newNode = new HeapNode(null, null, null, null);
         HeapItem newItem = new HeapItem(key, info, newNode);
@@ -84,7 +88,7 @@ public class BinomialHeap{
     /**
      * Delete the minimal item
      */
-    public int deleteMin() {
+    public int deleteMin() { // O(log(n))
         int res = min.rank;
         numOfTrees -= 1;
         if (size == 1 || size == 0) {
@@ -123,21 +127,7 @@ public class BinomialHeap{
         }
         return res;
     }
-    public boolean checkParents() {
-        if (last == null) {
-            return true;
-        }
-        int cnt = 0;
-        HeapNode node = last.next;
-        while (node != last) {
-            if (node.parent != null) {
-                return false;
-            }
-            node = node.next;
-        }
-        return last.parent == null;
-    }
-    public void updateHeap() {  // removes all parents and apply min
+    public void updateHeap() {  // removes all parents and apply min, O(log(n))
         HeapNode node = last;
         min = last;
         node = node.next;
@@ -155,7 +145,7 @@ public class BinomialHeap{
         last.parent = null;
     }
 
-    public HeapNode findBeforeMin(){
+    public HeapNode findBeforeMin(){ // O(log(n))
         if (min.next == min) {
             return min;
         }
@@ -169,7 +159,10 @@ public class BinomialHeap{
     /**
      * Return the minimal HeapItem
      */
-    public HeapItem findMin() {
+    public HeapItem findMin() { // O(1)
+        if (min == null) {
+            return null;
+        }
         return min.item;
     }
 
@@ -178,35 +171,37 @@ public class BinomialHeap{
      * <p>
      * Decrease the key of item by diff and fix the heap.
      */
-    public void decreaseKey(HeapItem item, int diff) {
+    public void decreaseKey(HeapItem item, int diff) { // O(log(n))
         HeapNode node = item.node;
         item.key -= diff;
-        if (item.key <= min.item.key) {
-            min = item.node;
-        }
-        if (node.parent != null) {
-            HeapNode parent = node.parent;
-            while(node.parent != null && node.item.key < node.parent.item.key){
-                switchNodes(node, parent);
-                node = parent;
-                parent = node.parent;
+        while (node.parent != null) {
+            if (node.item.key < node.parent.item.key) {
+                HeapNode par = node.parent;
+                switchNodes(node, node.parent);
+                node = par;
+            }else {
+                break;
             }
         }
+        if (item.key < min.item.key) {
+            min = item.node;
+        }
+        last.parent = null;
     }
 
-    public void switchNodes (HeapNode node1, HeapNode node2) {
+    public void switchNodes (HeapNode node1, HeapNode node2) { // O(1)
         HeapItem item1 = node1.item;
         HeapItem item2 = node2.item;
         item1.node = node2;
-        item2.node = node1;
         node1.item = item2;
+        item2.node = node1;
         node2.item = item1;
     }
 
     /**
      * Delete the item from the heap.
      */
-    public void delete(HeapItem item) {
+    public void delete(HeapItem item) { // O(log(n))
         int curr = item.key - min.item.key + 1;
         decreaseKey(item, curr);
         deleteMin();
@@ -220,7 +215,7 @@ public class BinomialHeap{
      * @return
      */
 
-    public HeapNode link(HeapNode node1, HeapNode node2) {
+    public HeapNode link(HeapNode node1, HeapNode node2) { // O(1)
         numOfTrees -= 1;
         if (node1.item.key < node2.item.key) {
             return getHeapNode(node1, node2);
@@ -229,7 +224,10 @@ public class BinomialHeap{
         }
     }
 
-    public HeapNode getHeapNode(HeapNode node1, HeapNode node2) {
+    public HeapNode getHeapNode(HeapNode node1, HeapNode node2) { // O(1)
+        if (min == node2) {
+            min = node1;
+        }
         HeapNode node1Child = node1.child;
         if (node1Child != null) {
             HeapNode tmp  = node1Child.next;
@@ -249,7 +247,7 @@ public class BinomialHeap{
     /**
      * Meld the heap with heap2
      */
-    public void meld(BinomialHeap heap2) {
+    public void meld(BinomialHeap heap2) { // O(log(n))
         if (heap2.empty()) {
             return;
         }
@@ -341,7 +339,7 @@ public class BinomialHeap{
      * @param node last node
      * @param arr the array that *it inserts to.
      */
-    public static void insertToArr(HeapNode node, HeapNode[] arr) {
+    public static void insertToArr(HeapNode node, HeapNode[] arr) {// O(log(n))
         for (int i = 0; i < arr.length; i++) {
             if (i == node.rank) {
                 arr[i] = node;
@@ -357,7 +355,7 @@ public class BinomialHeap{
     /**
      * Return the number of elements in the heap
      */
-    public int size() {
+    public int size() {// O(1)
         return size;
     }
 
@@ -365,14 +363,16 @@ public class BinomialHeap{
      * The method returns true if and only if the heap
      * is empty.
      */
-    public boolean empty() {
+    public boolean empty() {// O(1)
         return this.min == null;
     }
 
     /**
      * Return the number of trees in the heap.
      */
-    public int numTrees() { return numOfTrees; }
+    public int numTrees() {// O(1)
+        return numOfTrees;
+    }
 
     /**
      * Class implementing a node in a Binomial Heap.
